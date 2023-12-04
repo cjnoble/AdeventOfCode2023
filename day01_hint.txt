@@ -1,0 +1,2 @@
+Check what happens in the case of letters overlapping between digits eg oneight 
+The intention is that the line would give 18

@@ -15,6 +15,22 @@ def calibration_value(line):
     return int(digits[0] + digits[-1])
 
 
+def is_digit(d):
+
+    if d in [str(i) for i in range(1, 10)]:
+        return True
+    return False
+
+def calibration_value_simple(line):
+
+    digits = []
+
+    for letter in line:
+        if check_digit(letter):
+            digits.append(letter)
+
+    return int(digits[0] + digits[-1])
+
 def check_digit(digit):
 
     digit_lookup = {"one": "1", "two": "2", "three": "3", "four": "4", "five": "5", "six": "6", "seven": "7", "eight": "8", "nine": "9"}
