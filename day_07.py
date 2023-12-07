@@ -67,17 +67,17 @@ class WildHand(Hand):
         counts = list(counter.values())
         counts.sort(reverse=True)
 
-        if wild_count == 5 or counts[0] == 5 or counts[0] + wild_count == 5:
+        if wild_count == 5 or counts[0] + wild_count == 5:
             return 6
-        elif counts[0] == 4 or counts[0] + wild_count == 4:
+        elif counts[0] + wild_count == 4:
             return 5
-        elif (counts[0] == 3 or counts[0] + wild_count == 3) and counts[1] == 2:
+        elif (counts[0] + wild_count == 3) and counts[1] == 2:
             return 4
-        elif counts[0] == 3 or counts[0] + wild_count == 3:
+        elif counts[0] + wild_count == 3:
             return 3
-        elif (counts[0] == 2 or counts[0] + wild_count == 2) and counts[1] == 2:
+        elif (counts[0] + wild_count == 2) and counts[1] == 2:
             return 2
-        elif counts[0] == 2 or counts[0] + wild_count == 2:
+        elif counts[0] + wild_count == 2:
             return 1
         else:
             return 0
