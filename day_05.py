@@ -216,7 +216,6 @@ def part_2(data):
         
         for seed in seeds:
             seed.map_offset(maps)
-
     
         continue
 
