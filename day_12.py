@@ -77,12 +77,6 @@ def num_allowable_combinations(string:str, allowable):
             new_combos_1 = [combo for combo in new_combos_1 if test_string_incomplete(combo, allowable)]
             new_combos_2 = [combo for combo in new_combos_2 if test_string_incomplete(combo, allowable)]
 
-            #combos = new_combos_1
-            #combos.extend(new_combos_2)
-
-            #combos = [combo for combo in combos if test_string_incomplete(combo, allowable)]
-            #print(combos)
-
             if len(upcoming) > 0:
                 combos = new_combos_1
                 extra += sum([num_allowable_combinations(string[char_i+1:], get_remaining_allowable(combo, allowable)) for combo in new_combos_2])
@@ -90,7 +84,6 @@ def num_allowable_combinations(string:str, allowable):
                 combos = new_combos_1
                 combos.extend(new_combos_2)
                 combos = [combo for combo in combos if test_string(combo, allowable)]
-            #print(combos)
 
         else:
             combos = [cur + char for cur in combos]
@@ -207,8 +200,6 @@ def part_1_optimum(data):
         springs, record = line.split(" ")
         record = tuple(int(i) for i in record.split(","))
 
-        #combos = possible_combinations(springs)
-
         num_combos = num_allowable_combinations(springs, record)
         print(f"{number}: {springs}, {record}, {num_combos}")
 
@@ -240,12 +231,6 @@ def part_1_compare(data):
 def part_2_nonconcurrent(data):
 
     total_combos = 0
-    # executor = concurrent.futures.ProcessPoolExecutor(61)
-    # futures = [executor.submit(combos_for_line, line, i) for i, line in enumerate(data)]
-    # concurrent.futures.wait(futures)
-
-    # total_combos = sum([f.result() for f in futures])
-
     for i, line in enumerate(data):
 
         num_combos = combos_for_line(line, i)
@@ -262,13 +247,6 @@ def part_2(data):
 
     total_combos = sum([f.result() for f in futures])
 
-    # for line in data:
-
-    #     springs, record, num_combos = combos_for_line(line)
-    #     total_combos += num_combos
-
-    #     print(springs, record, num_combos)
-
     return total_combos 
 
 def combos_for_line(line, number):
@@ -279,9 +257,6 @@ def combos_for_line(line, number):
     record = [record for r in range(5)]
     record = tuple(r for sub in record for r in sub)
 
-    #combos = gen_allowable_combinations(springs, record)
-
-    #num_combos = sum([test_string_full(combo, record) for combo in combos])
     num_combos = num_allowable_combinations(springs, record)
     print(f"{number}: {springs}, {record}, {num_combos}")
 
