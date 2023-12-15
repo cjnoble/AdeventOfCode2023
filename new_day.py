@@ -1,4 +1,4 @@
-DAY = 14
+DAY = 15
 
 day_str = f"{DAY:02d}"
 
