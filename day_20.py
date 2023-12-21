@@ -38,7 +38,7 @@ class FlipFlop(Module):
             else: # Current output is high
                 self.output = Pulse.Low
         
-            self.pulse_count[self.output] += 1
+            self.pulse_count[self.output] += len(self.output_modules)
             return [Instruction(self.name, module, self.output) for module in self.output_modules]
         elif input == Pulse.High:
             pass #do nothing
@@ -72,7 +72,7 @@ class Conjunction (Module):
         else:
             self.output = Pulse.Low
         
-        self.pulse_count[self.output] += 1
+        self.pulse_count[self.output] += len(self.output_modules)
         return [Instruction(self.name, module, self.output) for module in self.output_modules]
 
 class Broadcaster(Module):
@@ -85,7 +85,7 @@ class Broadcaster(Module):
     def update(self, instruction):
         #input:Pulse):
         self.output = instruction.pulse
-        self.pulse_count[self.output] += 1
+        self.pulse_count[self.output] += len(self.output_modules)
         return [Instruction(self.name, module, self.output) for module in self.output_modules]
 
 class Button(Module):
@@ -135,11 +135,18 @@ def set_up(data):
 
     #print(modules)
 
-    for name, module in modules.items():
+
+
+
+    for name, module in list(modules.items()):
         #print(f"{name}, {module}, {module.output_modules}")
         for output in module.output_modules:
             
+            if output not in modules:
+                modules[output] = Output(output)
+
             output_module = modules[output]
+                
             if isinstance(output_module, Conjunction):
                 output_module.add_input(name)
 
@@ -161,24 +168,26 @@ def part_1(data, button_presses):
     # Inital setup
     modules = set_up(data)
 
-    instructions = deque()
-    instructions.append(Instruction("", "button", None))
+    for button_counter in range(button_presses):
 
-    while True:
-        #print(instructions)
-        new_instructions = deque()
-        while instructions:
-            instruction = instructions.popleft()
-            output_module = modules[instruction.output]
+        instructions = deque()
+        instructions.append(Instruction("", "button", None))
 
-            next_instructions = output_module.update(instruction)
-            #print(next_instructions)
-            if next_instructions:
-                new_instructions.extend(next_instructions)
-        if new_instructions:
-            instructions = new_instructions
-        else:
-            break
+        while True:
+            #print(instructions)
+            new_instructions = deque()
+            while instructions:
+                instruction = instructions.popleft()
+                output_module = modules[instruction.output]
+
+                next_instructions = output_module.update(instruction)
+                #print(next_instructions)
+                if next_instructions:
+                    new_instructions.extend(next_instructions)
+            if new_instructions:
+                instructions = new_instructions
+            else:
+                break
 
     low_pulse_count = sum([m.pulse_count[Pulse.Low] for m in modules.values()])
     high_pulse_count = sum([m.pulse_count[Pulse.High] for m in modules.values()])
@@ -193,5 +202,5 @@ if __name__ == "__main__":
 
     DAY = "20"
     data = read_text_file(f"{DAY}.txt")
-    print(part_1(data))
+    print(part_1(data, 1000))
     print(part_2(data))

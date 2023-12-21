@@ -15,6 +15,14 @@ class TestMethods(unittest.TestCase):
 
         self.assertEqual(result, expected)
 
+    def test_1_singlepress(self):
+
+        expected = 16
+
+        result = day.part_1(test_data, 1)
+
+        self.assertEqual(result, expected)
+
     def test_1(self):
 
         expected = 11687500
@@ -27,9 +35,9 @@ class TestMethods(unittest.TestCase):
 
         expected = 0
 
-        result = day.part_2(test_data)
+        #result = day.part_2(test_data)
 
-        self.assertEqual(result, expected)
+        #self.assertEqual(result, expected)
 
 
 if __name__ == '__main__':
