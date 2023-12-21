@@ -15,7 +15,15 @@ class Pulse(Enum):
     High = 1
 
 
-class FlipFlop(object):
+class Module(object):
+    @classmethod
+    def from_string(cls, outputs_string):
+        #outputs = re.findall("([A-Za-z]+,*)", outputs_string)
+        outputs = outputs_string.split(",")
+        outputs = [i.strip() for i in outputs]
+        return cls(outputs)
+    
+class FlipFlop(Module):
     prefix = "%"
     def __init__(self, output_modules:list):
         self.output = Pulse.Low
@@ -31,14 +39,19 @@ class FlipFlop(object):
         
         self.pulse_count[self.output] += 1
 
-class Conjunction (object):
+class Conjunction (Module):
     prefix = "&"
-    def __init__(self, input_modules:list, output_modules:list):
-        self.inputs = {input_module: Pulse.Low for input_module in input_modules}
+    def __init__(self, output_modules:list):
+        #self.inputs = {input_module: Pulse.Low for input_module in input_modules}
+        self.inputs = {}
         self.output = Pulse.Low
         self.output_modules = output_modules
         self.pulse_count = {Pulse.Low: 0, Pulse.High: 0}
     
+
+    def add_input(self, input_str):
+        self.inputs[input_str] = Pulse.Low
+
     def update(self, input_module: str, input:Pulse):
         self.inputs[input_module] = input
         if Pulse.Low in self.inputs.values():
@@ -48,13 +61,7 @@ class Conjunction (object):
         
         self.pulse_count[self.output] += 1
 
-    @classmethod
-    def from_string(cls, string):
-        string = string.split("->")
-        outputs = re.findall("([A-Za-z]+,*)", string[1])
-        return cls(outputsb  )
-
-class Broadcaster(object):
+class Broadcaster(Module):
     def __init__(self, output_modules:list):
         self.output = Pulse.Low
         self.output_modules = output_modules
@@ -64,8 +71,7 @@ class Broadcaster(object):
         self.output = input
         self.pulse_count[self.output] += 1
 
-
-class Button(object):
+class Button(Module):
     def __init__(self, output_modules:list):
         self.output = Pulse.Low
         self.output_modules = output_modules
@@ -75,7 +81,44 @@ class Button(object):
         self.output = Pulse.Low
         self.pulse_count[self.output] += 1
 
+class Output(Module):
+    def update(self):
+        pass
+
+def parse_inputs(data):
+
+    modules = {}
+
+    for row in data:
+        name, outputs = row.split("->")
+        name = name.strip()
+        if name[0] == "&":
+            modules[name[1:]] = Conjunction.from_string(outputs)
+        elif name[0] == "%":
+            modules[name[1:]] = FlipFlop.from_string(outputs)
+        elif name == "broadcaster":
+            modules[name] = Broadcaster.from_string(outputs)
+        elif name == "output":
+            modules[name] = Output()
+
+    return modules
+
 def part_1(data, button_presses):
+
+    # Inital setup
+    button = Button(["broadcaster"])
+    modules = parse_inputs(data)
+    modules["button"] = button
+
+    print(modules)
+
+    for name, module in modules.items():
+        print(f"{name}, {module}, {module.output_modules}")
+        for output in module.output_modules:
+            
+            output_module = modules[output]
+            if isinstance(output_module, Conjunction):
+                output_module.add_input(name)
 
     return
 
