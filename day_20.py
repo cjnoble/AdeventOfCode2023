@@ -1,6 +1,7 @@
 import re
 from enum import Enum
 from collections import defaultdict, deque
+from math import lcm
 
 def read_text_file (file_path):
 
@@ -213,13 +214,19 @@ def trace_inputs(module_name, modules):
 def part_2(data):
 # Inital setup
     modules = set_up(data)
-    button_presses = 2**12
+    button_presses = 2**14
 
     test = "rx"
-    
+
     inputs = modules[test].inputs
     for input in inputs:
         print(modules[input])
+        r_inputs = modules[input].inputs
+        for r_input in r_inputs:
+            print(modules[r_input])
+
+    r_input_cycles = {}
+
     #trace_inputs(test, modules)
 
     for module_type in [FlipFlop, Conjunction, Broadcaster, Button, Output]:
@@ -252,7 +259,13 @@ def part_2(data):
             print(f"Pulse sent after {button_counter}")
             break
 
-    return modules["rx"].output
+        for r_input in r_inputs:
+            if modules[r_input].pulse_count[Pulse.High] > 0 and r_input not in r_input_cycles:
+                print(modules[r_input].pulse_count[Pulse.High])
+                r_input_cycles[r_input] = button_counter
+
+    print(r_input_cycles)
+    return lcm(*r_input_cycles.values())
 
 def print_modul_status(modules):
     print([module.status() for module in modules.values() if isinstance(module, FlipFlop)])        
