@@ -214,7 +214,7 @@ def trace_inputs(module_name, modules):
 def part_2(data):
 # Inital setup
     modules = set_up(data)
-    button_presses = 2**14
+    button_presses = 2**13
 
     test = "rx"
 
@@ -225,7 +225,7 @@ def part_2(data):
         for r_input in r_inputs:
             print(modules[r_input])
 
-    r_input_cycles = {}
+    r_input_cycles = defaultdict(lambda: dict())
 
     #trace_inputs(test, modules)
 
@@ -234,7 +234,7 @@ def part_2(data):
 
     print_modul_status(modules)
 
-    for button_counter in range(button_presses):
+    for button_counter in range(1, button_presses + 1):
 
         instructions = deque()
         instructions.append(Instruction("", "button", None))
@@ -255,17 +255,17 @@ def part_2(data):
             else:
                 break
         #print_modul_status(modules)
-        if modules["rx"].output == Pulse.Low:
-            print(f"Pulse sent after {button_counter}")
-            break
+            if modules["rx"].output == Pulse.Low:
+                print(f"Pulse sent after {button_counter}")
+                break
 
-        for r_input in r_inputs:
-            if modules[r_input].pulse_count[Pulse.High] > 0 and r_input not in r_input_cycles:
-                print(modules[r_input].pulse_count[Pulse.High])
-                r_input_cycles[r_input] = button_counter
+            for r_input in r_inputs:
+                if r_input not in r_input_cycles or max(r_input_cycles[r_input].keys()) < modules[r_input].pulse_count[Pulse.High]:
+                    print(modules[r_input].pulse_count[Pulse.High], modules[r_input].output)
+                    r_input_cycles[r_input][modules[r_input].pulse_count[Pulse.High]] = button_counter
 
     print(r_input_cycles)
-    return lcm(*r_input_cycles.values())
+    return lcm(*[r[1] for r in r_input_cycles.values()])
 
 def print_modul_status(modules):
     print([module.status() for module in modules.values() if isinstance(module, FlipFlop)])        
