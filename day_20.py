@@ -21,7 +21,16 @@ class Module(object):
         outputs = outputs_string.split(",")
         outputs = [i.strip() for i in outputs]
         return cls(name, outputs)
+
+    def add_input(self, input_str):
+        self.inputs[input_str] = Pulse.Low
+
+    def __repr__(self):
+        return f"{self.__class__.__name__} {self.name} {self.output}"
     
+    def status(self):
+        return f"{self.output.value}"
+
 class FlipFlop(Module):
     prefix = "%"
     def __init__(self, name, output_modules:list):
@@ -29,6 +38,7 @@ class FlipFlop(Module):
         self.output = Pulse.Low
         self.output_modules = output_modules
         self.pulse_count = {Pulse.Low: 0, Pulse.High: 0}
+        self.inputs = {}
     
     def update(self, instruction):
         input = instruction.pulse
@@ -55,10 +65,6 @@ class Conjunction (Module):
         self.output_modules = output_modules
         self.pulse_count = {Pulse.Low: 0, Pulse.High: 0}
     
-
-    def add_input(self, input_str):
-        self.inputs[input_str] = Pulse.Low
-
     def update(self, instruction):
         '''
         input_module: str, input:Pulse
@@ -78,6 +84,7 @@ class Conjunction (Module):
 class Broadcaster(Module):
     def __init__(self, name, output_modules:list):
         self.name = name
+        self.inputs = {}
         self.output = Pulse.Low
         self.output_modules = output_modules
         self.pulse_count = {Pulse.Low: 0, Pulse.High: 0}
@@ -91,6 +98,7 @@ class Broadcaster(Module):
 class Button(Module):
     def __init__(self, name, output_modules:list):
         self.name = name
+        self.inputs = {}
         self.output = Pulse.Low
         self.output_modules = output_modules
         self.pulse_count = {Pulse.Low: 0, Pulse.High: 0}
@@ -103,11 +111,14 @@ class Button(Module):
 class Output(Module):
     def __init__(self, name):
         self.name = name
+        self.inputs = {}
+        self.output = Pulse.High
         self.output_modules = []
         self.pulse_count = {Pulse.Low: 0, Pulse.High: 0}
 
     def update(self, instruction):
-        pass
+        if instruction.pulse == Pulse.Low:
+            self.output = Pulse.Low
 
 def parse_inputs(data):
 
@@ -135,9 +146,6 @@ def set_up(data):
 
     #print(modules)
 
-
-
-
     for name, module in list(modules.items()):
         #print(f"{name}, {module}, {module.output_modules}")
         for output in module.output_modules:
@@ -147,8 +155,7 @@ def set_up(data):
 
             output_module = modules[output]
                 
-            if isinstance(output_module, Conjunction):
-                output_module.add_input(name)
+            output_module.add_input(name)
 
     return modules
 
@@ -194,9 +201,61 @@ def part_1(data, button_presses):
     print(f"Low pulses sent {low_pulse_count}, High pulses sent {high_pulse_count}")
     return low_pulse_count * high_pulse_count
 
-def part_2(data):
+def trace_inputs(module_name, modules):
 
-    return
+    inputs = modules[module_name].inputs
+    for input in inputs:
+        print(input)
+
+    return [trace_inputs(input, modules) for input in inputs]
+
+
+def part_2(data):
+# Inital setup
+    modules = set_up(data)
+    button_presses = 2**12
+
+    test = "rx"
+    
+    inputs = modules[test].inputs
+    for input in inputs:
+        print(modules[input])
+    #trace_inputs(test, modules)
+
+    for module_type in [FlipFlop, Conjunction, Broadcaster, Button, Output]:
+        print(module_type.__name__, len([module for module in modules.values() if isinstance(module, module_type)]))
+
+    print_modul_status(modules)
+
+    for button_counter in range(button_presses):
+
+        instructions = deque()
+        instructions.append(Instruction("", "button", None))
+
+        while True:
+            #print(instructions)
+            new_instructions = deque()
+            while instructions:
+                instruction = instructions.popleft()
+                output_module = modules[instruction.output]
+
+                next_instructions = output_module.update(instruction)
+                #print(next_instructions)
+                if next_instructions:
+                    new_instructions.extend(next_instructions)
+            if new_instructions:
+                instructions = new_instructions
+            else:
+                break
+        #print_modul_status(modules)
+        if modules["rx"].output == Pulse.Low:
+            print(f"Pulse sent after {button_counter}")
+            break
+
+    return modules["rx"].output
+
+def print_modul_status(modules):
+    print([module.status() for module in modules.values() if isinstance(module, FlipFlop)])        
 
 if __name__ == "__main__":
 
