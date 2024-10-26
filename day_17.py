@@ -24,7 +24,7 @@ class Node(object):
     def f(self):
         return self.g
 
-    def set_as_first_node(self, data):
+    def set_as_first_node(self):
         self.start_node = True
         self.g = 0
         # self.update_h(data)
@@ -115,7 +115,7 @@ def part_1(data):
 
     nodes = {(x, y, dir): Node(x, y, data[y][x], dir) for x in range(max_x) for y in range(max_y) for dir in [Dir.LR, Dir.UD]}
 
-    return run(nodes, max_x, max_y)
+    return run(nodes, max_x, max_y, data)
 
 
 def plot(nodes, max_x, max_y):
@@ -130,12 +130,12 @@ def part_2(data):
 
     nodes = {(x, y, dir): UltraNode(x, y, data[y][x], dir) for x in range(max_x) for y in range(max_y) for dir in [Dir.LR, Dir.UD]}
 
-    return run(nodes, max_x, max_y)
+    return run(nodes, max_x, max_y, data)
 
-def run(nodes, max_x, max_y):
+def run(nodes, max_x, max_y, data):
     shortest_path_list = set() 
 
-    nodes[(0, 0, Dir.LR)].set_as_first_node(data)
+    nodes[(0, 0, Dir.LR)].set_as_first_node()
 
     all_nodes_set = set(nodes.values())
 
