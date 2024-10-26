@@ -52,7 +52,7 @@ class Conjunction (object):
     def from_string(cls, string):
         string = string.split("->")
         outputs = re.findall("([A-Za-z]+,*)", string[1])
-        return cls(outputsb  )
+        return cls(outputs)
 
 class Broadcaster(object):
     def __init__(self, output_modules:list):
