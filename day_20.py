@@ -82,6 +82,11 @@ class Conjunction (Module):
         self.pulse_count[self.output] += len(self.output_modules)
         return [Instruction(self.name, module, self.output) for module in self.output_modules]
 
+    @classmethod
+    def from_string(cls, name, string):
+        outputs = re.findall("([A-Za-z]+,*)", string)
+        return cls(name, outputs)
+
 class Broadcaster(Module):
     def __init__(self, name, output_modules:list):
         self.name = name
